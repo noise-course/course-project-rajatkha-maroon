@@ -57,6 +57,13 @@ with open(labels_easy_path, "w") as le, open(labels_hard_path, "w") as lh:
 
 print("Easy labels in:", labels_easy_path)
 print("Hard labels in:", labels_hard_path)
-...
+```
 
-rajat
+After this stage, the data looks like this:
+data/
+	traffic_flows/
+		10000002068136406352_malware_emotet.pcap
+		10000026091954898561_bengin_benign.pcap
+		...
+	labels_easy.txt
+	labels_hard.txt
