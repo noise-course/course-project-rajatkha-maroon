@@ -82,4 +82,7 @@ plt.ylabel("Variance ratio")
 plt.grid(True)
 plt.show()
 ```
+From this plot, I observe that the first ~20 components capture a large fraction of the variance, and
+the curve begins to flatten afterward. Hence, for simplicity and efficiency, I fix:
 
+Number of components = 20 for both easy and hard classes.
