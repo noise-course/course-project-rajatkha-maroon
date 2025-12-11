@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>2. Dataset and flow extraction &#8212; netML Malware Classification 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=2709fde1"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="dataset-and-flow-extraction">
+<h1>2. Dataset and flow extraction<a class="headerlink" href="#dataset-and-flow-extraction" title="Link to this heading">¶</a></h1>
+<p>The starting point is the <strong>NetML Malware</strong> dataset, which ships as a single
+pcapML / pcapng file (e.g. <code class="docutils literal notranslate"><span class="pre">traffic.pcapng</span></code>). Internally, this file encodes
+many flow-level samples along with metadata.</p>
+<p>Each sample has:</p>
+<ul class="simple">
+<li><p>a set of packets (raw bytes for one flow),</p></li>
+<li><p>a metadata string that encodes <strong>two labels</strong>:</p>
+<ul>
+<li><p>an <strong>easy</strong> binary label (<code class="docutils literal notranslate"><span class="pre">benign</span></code> or <code class="docutils literal notranslate"><span class="pre">malware</span></code>);</p></li>
+<li><p>a <strong>hard</strong> label (malware family name plus benign).</p></li>
+</ul>
+</li>
+</ul>
+<p>Rather than implementing my own flow-timeout logic, I <strong>reuse the flow
+boundaries provided by pcapML</strong>. This helps keep the pipeline closer to the
+intended NetML setup.</p>
+<p>I use the <code class="docutils literal notranslate"><span class="pre">pcalML</span></code> utility to build separate <strong>pcap</strong> files across flows.
+I use the <code class="docutils literal notranslate"><span class="pre">pcapml_fe</span></code> Python library to iterate over samples and fetch the labels.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build flows</span>
+<span class="err">!</span><span class="n">pcapml</span> <span class="o">-</span><span class="n">M</span> <span class="n">traffic</span><span class="o">.</span><span class="n">pcapng</span> <span class="o">-</span><span class="n">O</span> <span class="n">traffic_flows</span><span class="o">/</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">import</span> <span class="nn">pcapml_fe</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">pcapml_path</span> <span class="o">=</span> <span class="s2">&quot;./traffic.pcapng&quot;</span>
+<span class="n">labels_easy_path</span> <span class="o">=</span> <span class="s2">&quot;./labels_easy.txt&quot;</span>
+<span class="n">labels_hard_path</span> <span class="o">=</span> <span class="s2">&quot;./labels_hard.txt&quot;</span>
+
+<span class="k">def</span> <span class="nf">parse_labels</span><span class="p">(</span><span class="n">meta_str</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">meta_str</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[,_]&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">easy</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">hard</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">easy</span><span class="p">,</span> <span class="n">hard</span>
+
+<span class="c1"># Build labels</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">labels_easy_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">le</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">labels_hard_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">lh</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sample</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pcapml_fe</span><span class="o">.</span><span class="n">sampler</span><span class="p">(</span><span class="n">pcapml_path</span><span class="p">)):</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sample</span><span class="o">.</span><span class="n">sid</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">easy</span><span class="p">,</span> <span class="n">hard</span> <span class="o">=</span> <span class="n">parse_labels</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+
+        <span class="c1"># Write labels into the file</span>
+        <span class="n">le</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">easy</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">lh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">hard</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Progress indicator</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">100000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrote </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> flow pcaps...&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Easy labels in:&quot;</span><span class="p">,</span> <span class="n">labels_easy_path</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hard labels in:&quot;</span><span class="p">,</span> <span class="n">labels_hard_path</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After this stage, the data looks like this:
+data/</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>traffic_flows/
+
+	10000002068136406352_malware_emotet.pcap
+	
+	10000026091954898561_bengin_benign.pcap
+	
+	...
+	
+labels_easy.txt
+
+labels_hard.txt
+</pre></div>
+</div>
+<p>Each line of labels_easy/hard.txt is <code class="docutils literal notranslate"><span class="pre">sampleId,label</span></code></p>
+<p>…</p>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">netML Malware Classification</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results.html">6. Results</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Rajat Khandelwal.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/dataset_and_flows.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
