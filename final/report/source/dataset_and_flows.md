@@ -61,9 +61,19 @@ print("Hard labels in:", labels_hard_path)
 
 After this stage, the data looks like this:
 data/
+
 	traffic_flows/
+
 		10000002068136406352_malware_emotet.pcap
+		
 		10000026091954898561_bengin_benign.pcap
+		
 		...
+		
 	labels_easy.txt
+	
 	labels_hard.txt
+
+Each line of labels_easy/hard.txt is ```sampleId,label```
+
+...
