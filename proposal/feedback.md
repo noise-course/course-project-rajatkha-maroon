@@ -1,0 +1,3 @@
+## Feedback
+
+This is a clear and well aligned reproduction project. For the experiments, the two details you should verify up front are that your **flow-generation settings match the NetML malware extraction pipeline**, since differences in how packets are grouped or timeouts are applied can shift detection performance, and that your **feature scaling or normalization is consistent across models**, because models like logistic regression and MLPs behave very differently on raw nPrint features compared to Random Forests. With those steps pinned down, reproducing and improving the leaderboard results should be straightforward.
