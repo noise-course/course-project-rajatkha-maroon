@@ -20,6 +20,7 @@ I use the `pcalML` utility to build separate **pcap** files across flows.
 I use the `pcapml_fe` Python library to iterate over samples and fetch the labels.
 
 ```python
+# Build flows
 !pcapml -M traffic.pcapng -O traffic_flows/
 
 import os
@@ -39,7 +40,7 @@ def parse_labels(meta_str):
     
     return easy, hard
 
-# Build flows + labels
+# Build labels
 with open(labels_easy_path, "w") as le, open(labels_hard_path, "w") as lh:
     for i, sample in enumerate(pcapml_fe.sampler(pcapml_path)):
         fname = f"{sample.sid}"
@@ -56,3 +57,6 @@ with open(labels_easy_path, "w") as le, open(labels_hard_path, "w") as lh:
 
 print("Easy labels in:", labels_easy_path)
 print("Hard labels in:", labels_hard_path)
+...
+
+rajat
