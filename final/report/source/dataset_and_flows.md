@@ -1,6 +1,5 @@
 # 2. Dataset and flow extraction
 
-## 2.1 netML malware pcapML trace
 The starting point is the **NetML Malware** dataset, which ships as a single
 pcapML / pcapng file (e.g. `traffic.pcapng`). Internally, this file encodes
 many flow-level samples along with metadata.
