@@ -49,4 +49,5 @@ The github repository doesn't provide ```traffic.pcapng.gz``` due to its huge si
 
 # Results
 1. **RandomForest**, **LogReg**, and **SGD_logreg** achieve >99% balanced accuracy on **easy** class, while 70%, 60%, and 55% on **hard** class.
-2. Placeholder for reproduction
+2. **SVM_rbf** achieves the higest balanced accuracy (~77%) on **hard** class.
+3. **netML Autogluon** achieves >99% on **easy**, and ~75% on **hard**.
