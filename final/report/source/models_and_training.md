@@ -7,12 +7,10 @@ I perform a **single stratified train/validation split** for each task:
 ```python
 from sklearn.model_selection import train_test_split
 
-# EASY class
 X_train_easy, X_val_easy, y_train_easy, y_val_easy = train_test_split(
     X_easy, y_easy, test_size=0.2, stratify=y_easy, random_state=42
 )
 
-# HARD class
 X_train_hard, X_val_hard, y_train_hard, y_val_hard = train_test_split(
     X_hard, y_hard, test_size=0.2, stratify=y_hard, random_state=42
 )
@@ -21,54 +19,47 @@ X_train_hard, X_val_hard, y_train_hard, y_val_hard = train_test_split(
 ## 5.2. Models
 I evaluate the following models:
 
-1. Logistic Regression (with StandardScaler)
-2. SGDClassifier (linear, log-loss)
-3. RandomForestClassifier
-4. GradientBoostingClassifier
-5. XGBClassifier
+1. Random forest
+2. LogReg
+3. SGD LogReg
 
-```python
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression, SGDClassifier
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-import numpy as np
+## 5.3. Evaluation
 
-def get_models():
-    models = {}
+**Easy results:**
 
-    models["RandomForest"] = RandomForestClassifier(
-        n_estimators=300,
-        max_depth=None,
-        n_jobs=-1,
-        random_state=42
-    )
+   task         model      acc  balanced_acc  precision_macro  recall_macro  f1_macro  
 
-    models["LogReg"] = make_pipeline(
-        StandardScaler(),
-        LogisticRegression(max_iter=2000)
-    )
+0  easy  RandomForest  0.99997      0.999942         0.999980      0.999942  0.999961   
 
-    models["SGD_logreg"] = make_pipeline(
-        StandardScaler(),
-        SGDClassifier(loss="log_loss", max_iter=1000, tol=1e-3)
-    )
+1  easy        LogReg  0.99994      0.999909         0.999934      0.999909  0.999922  
 
-    models["GradBoost"] = GradientBoostingClassifier(
-        n_estimators=200,
-        random_state=42
-    )
+2  easy    SGD_logreg  0.99994      0.999909         0.999934      0.999909  0.999922   
 
-    if HAS_XGB:
-        models["XGBoost"] = XGBClassifier(
-            n_estimators=300,
-            max_depth=6,
-            learning_rate=0.1,
-            subsample=0.8,
-            colsample_bytree=0.8,
-            tree_method="hist",
-            eval_metric="logloss",
-            n_jobs=-1
-        )
-    return models
-```
+
+**Hard results:**
+
+   task         model       acc  balanced_acc  precision_macro  recall_macro  f1_macro
+   
+0  hard  RandomForest  0.884492      0.703461         0.707550      0.703461  0.705189  
+
+1  hard        LogReg  0.832160      0.583881         0.669906      0.583881  0.594641 
+
+2  hard    SGD_logreg  0.796339      0.522495         0.587273      0.522495  0.525238  
+
+## 5.3. Interpretation for easy class
+
+All three models achieve virtually perfect performance (balanced accuracy ≥ 0.9999).
+This indicates:
+
+1. The PCA representation preserves almost all the discriminative information needed to distinguish benign from malware flows.
+2. The binary decision boundary is extremely well-structured, meaning that even linear models (LogReg, SGD) find a clean separation between the two classes.
+3. The dataset at the easy-label level is highly linearly separable, at least after nPrint hashing + PCA projection.
+
+## 5.4. Interpretation for hard class
+Results are significantly lower than the easy task.
+
+Key observations:
+
+1. Random Forest performs best on the hard task: achieves 88% accuracy, but only 70% balanced accuracy. This gap means the model favors the majority families and struggles on minority ones.
+2. Linear models perform noticeably worse. Logistic Regression: 83% accuracy but only 58% balanced accuracy. SGD: drops further to ~52% balanced accuracy. This indicates that malware families are not linearly separable in 15-dimensional PCA space.
+3. Macro precision/recall reveal imbalance issues: Macro averaging gives each class equal weight. The drop from accuracy to macro F1 suggests that some families dominate the dataset while others are rare.
