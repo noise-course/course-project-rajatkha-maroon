@@ -1,6 +1,6 @@
-# 8. Conclusion, discussion, and future work
+# 7. Conclusion, discussion, and future work
 
-## 8.1 Conclusion and discussion
+## 7.1 Conclusion and discussion
 
 This project explored an end-to-end malware traffic classification pipeline:
 
@@ -29,7 +29,7 @@ Several key points emerged:
   The easy binary task (malware vs benign) is simpler and generally yields higher accuracy than the hard malware-family task. The hard task suffers from
   class imbalance and substantial overlap between families, resulting in much lower macro-F1 scores.
 
-## 8.2 Future work
+## 7.2 Future work
 
 For a future version of this project, the most important next steps would be:
 
