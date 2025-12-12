@@ -14,6 +14,8 @@
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="6. netML Autogluon" href="reproduction_netml.html" />
+    <link rel="prev" title="4. Dimensionality reduction with PCA" href="pca_dim_reduction.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -91,9 +93,8 @@ This indicates:</p>
 <li><p>Macro precision/recall reveal imbalance issues: Macro averaging gives each class equal weight. The drop from accuracy to macro F1 suggests that some families dominate the dataset while others are rare.</p></li>
 </ol>
 </section>
-</section>
 <section id="testing-other-models-v2">
-<h1>5.5. Testing other models (v2)<a class="headerlink" href="#testing-other-models-v2" title="Link to this heading">¶</a></h1>
+<h2>5.5. Testing other models (v2)<a class="headerlink" href="#testing-other-models-v2" title="Link to this heading">¶</a></h2>
 <p>On the hard class, I also evaluate the following models:</p>
 <ol class="arabic simple">
 <li><p>ExtraTrees</p></li>
@@ -103,7 +104,7 @@ This indicates:</p>
 </ol>
 </section>
 <section id="evaluation-on-other-models-v2">
-<h1>5.6. Evaluation on other models (v2)<a class="headerlink" href="#evaluation-on-other-models-v2" title="Link to this heading">¶</a></h1>
+<h2>5.6. Evaluation on other models (v2)<a class="headerlink" href="#evaluation-on-other-models-v2" title="Link to this heading">¶</a></h2>
 <p>After introducing additional models better suited to nonlinear and high-dimensional hashed feature spaces, the hard-task results improved noticeably. The new metrics are:</p>
 <p>Model	             Accuracy	Balanced Acc	Precision (macro)	Recall (macro)	F1 (macro)</p>
 <p>ExtraTrees	         0.8813	    0.6937	        0.7192	            0.6937	        0.6974</p>
@@ -111,8 +112,9 @@ This indicates:</p>
 <p>SVM_rbf              0.8825     0.7741          0.7685              0.7741          0.7147</p>
 </section>
 <section id="intepretation-on-other-models-v2">
-<h1>5.7. Intepretation on other models (v2)<a class="headerlink" href="#intepretation-on-other-models-v2" title="Link to this heading">¶</a></h1>
+<h2>5.7. Intepretation on other models (v2)<a class="headerlink" href="#intepretation-on-other-models-v2" title="Link to this heading">¶</a></h2>
 <p>The standout model is the SVM with RBF kernel, which achieves 0.7741 balanced accuracy, the highest among all tested methods. Unlike tree models, the RBF kernel constructs flexible, curved decision boundaries in the compressed 15-dimensional space and is better able to isolate smaller malware families from the dominant clusters. This leads to significantly higher recall on minority classes, which directly improves balanced accuracy. The SVM result is also the closest to the official NetML leaderboard performance, indicating that kernel-based methods can partially compensate for the information loss introduced by PCA.</p>
+</section>
 </section>
 
 
@@ -142,15 +144,32 @@ This indicates:</p>
 </search>
 <script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">1. Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="results.html">6. Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset_and_flows.html">2. Dataset and flow extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features_nprint.html">3. Feature Generation with nPrint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pca_dim_reduction.html">4. Dimensionality reduction with PCA</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5. Models and training</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#train-and-test-splits">5.1. Train and test splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#models">5.2. Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#evaluation">5.3. Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interpretation-for-easy-class">5.3. Interpretation for easy class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interpretation-for-hard-class">5.4. Interpretation for hard class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-other-models-v2">5.5. Testing other models (v2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#evaluation-on-other-models-v2">5.6. Evaluation on other models (v2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#intepretation-on-other-models-v2">5.7. Intepretation on other models (v2)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reproduction_netml.html">6. netML Autogluon</a></li>
+<li class="toctree-l1"><a class="reference internal" href="discussion_conclusion.html">8. Conclusion, discussion, and future work</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="pca_dim_reduction.html" title="previous chapter">4. Dimensionality reduction with PCA</a></li>
+      <li>Next: <a href="reproduction_netml.html" title="next chapter">6. netML Autogluon</a></li>
   </ul></li>
 </ul>
 </div>

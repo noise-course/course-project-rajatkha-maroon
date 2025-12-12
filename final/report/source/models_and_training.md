@@ -64,7 +64,7 @@ Key observations:
 2. Linear models perform noticeably worse. Logistic Regression: 83% accuracy but only 58% balanced accuracy. SGD: drops further to ~52% balanced accuracy. This indicates that malware families are not linearly separable in 15-dimensional PCA space.
 3. Macro precision/recall reveal imbalance issues: Macro averaging gives each class equal weight. The drop from accuracy to macro F1 suggests that some families dominate the dataset while others are rare.
 
-# 5.5. Testing other models (v2)
+## 5.5. Testing other models (v2)
 On the hard class, I also evaluate the following models:
 
 1. ExtraTrees
@@ -72,7 +72,7 @@ On the hard class, I also evaluate the following models:
 3. SGD_LogReg
 4. SVM_rbf
 
-# 5.6. Evaluation on other models (v2)
+## 5.6. Evaluation on other models (v2)
 After introducing additional models better suited to nonlinear and high-dimensional hashed feature spaces, the hard-task results improved noticeably. The new metrics are:
 
 Model	             Accuracy	Balanced Acc	Precision (macro)	Recall (macro)	F1 (macro)
@@ -83,5 +83,5 @@ HistGradientBoosting 0.9010	    0.7329	        0.7081	            0.7329	       
 
 SVM_rbf              0.8825     0.7741          0.7685              0.7741          0.7147
 
-# 5.7. Intepretation on other models (v2)
+## 5.7. Intepretation on other models (v2)
 The standout model is the SVM with RBF kernel, which achieves 0.7741 balanced accuracy, the highest among all tested methods. Unlike tree models, the RBF kernel constructs flexible, curved decision boundaries in the compressed 15-dimensional space and is better able to isolate smaller malware families from the dominant clusters. This leads to significantly higher recall on minority classes, which directly improves balanced accuracy. The SVM result is also the closest to the official NetML leaderboard performance, indicating that kernel-based methods can partially compensate for the information loss introduced by PCA.

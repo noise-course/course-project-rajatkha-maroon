@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>netML Malware Classification Project &#8212; netML Malware Classification 0.1 documentation</title>
+    <title>&lt;no title&gt; &#8212; netML Malware Classification 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
@@ -32,16 +32,44 @@
 
           <div class="body" role="main">
             
-  <section id="netml-malware-classification-project">
-<h1>netML Malware Classification Project<a class="headerlink" href="#netml-malware-classification-project" title="Link to this heading">¶</a></h1>
-<div class="toctree-wrapper compound">
+  <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">1. Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="results.html">6. Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset_and_flows.html">2. Dataset and flow extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features_nprint.html">3. Feature Generation with nPrint</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="features_nprint.html#per-flow-feature-extraction">3.1 Per-flow feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features_nprint.html#merging-per-flow-csvs-with-labels">Merging per-flow CSVs with labels</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pca_dim_reduction.html">4. Dimensionality reduction with PCA</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pca_dim_reduction.html#scree-plot-on-a-sample">4.1. Scree plot on a sample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pca_dim_reduction.html#incremental-pca-on-the-full-dataset">4.2. Incremental PCA on the full dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models_and_training.html">5. Models and training</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models_and_training.html#train-and-test-splits">5.1. Train and test splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models_and_training.html#models">5.2. Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models_and_training.html#evaluation">5.3. Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models_and_training.html#interpretation-for-easy-class">5.3. Interpretation for easy class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models_and_training.html#interpretation-for-hard-class">5.4. Interpretation for hard class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models_and_training.html#testing-other-models-v2">5.5. Testing other models (v2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models_and_training.html#evaluation-on-other-models-v2">5.6. Evaluation on other models (v2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models_and_training.html#intepretation-on-other-models-v2">5.7. Intepretation on other models (v2)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reproduction_netml.html">6. netML Autogluon</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reproduction_netml.html#evaluation">6.1 Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reproduction_netml.html#interpretation">6.2 Interpretation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="discussion_conclusion.html">8. Conclusion, discussion, and future work</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="discussion_conclusion.html#conclusion-and-discussion">8.1 Conclusion and discussion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="discussion_conclusion.html#future-work">8.2 Future work</a></li>
+</ul>
+</li>
 </ul>
 </div>
-</section>
 
 
           </div>
@@ -72,7 +100,12 @@
 <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">1. Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="results.html">6. Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset_and_flows.html">2. Dataset and flow extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features_nprint.html">3. Feature Generation with nPrint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pca_dim_reduction.html">4. Dimensionality reduction with PCA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models_and_training.html">5. Models and training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproduction_netml.html">6. netML Autogluon</a></li>
+<li class="toctree-l1"><a class="reference internal" href="discussion_conclusion.html">8. Conclusion, discussion, and future work</a></li>
 </ul>
 
 <div class="relations">
