@@ -70,6 +70,7 @@ On the hard class, I also evaluate the following models:
 1. ExtraTrees
 2. HistGB
 3. SGD_LogReg
+4. SVM_rbf
 
 # 5.6. Evaluation on other models (v2)
 After introducing additional models better suited to nonlinear and high-dimensional hashed feature spaces, the hard-task results improved noticeably. The new metrics are:
@@ -80,14 +81,7 @@ ExtraTrees	         0.8813	    0.6937	        0.7192	            0.6937	        
 
 HistGradientBoosting 0.9010	    0.7329	        0.7081	            0.7329	        0.7070
 
+SVM_rbf              0.8825     0.7741          0.7685              0.7741          0.7147
+
 # 5.7. Intepretation on other models (v2)
-HistGradientBoosting becomes the best model overall: Accuracy: 90.1%. Balanced Accuracy: 73.29% (best so far)
-
-This improvement is meaningful:
-
-1. HistGB uses oblivious decision trees with histogram-based splits, making it good at discovering subtle nonlinear interactions even after PCA compression.
-2. It handles class imbalance better than vanilla RandomForest due to its boosting nature.
-3. It is well-suited to moderate-dimensional tabular data like the PCA output.
-
-Unlike accuracy, which is dominated by large malware families, balanced accuracy averages recall across all classes.
-A boost from ~70% to ~73% indicates HistGB is truly learning minority malware family structure better than tree bagging methods.
+The standout model is the SVM with RBF kernel, which achieves 0.7741 balanced accuracy, the highest among all tested methods. Unlike tree models, the RBF kernel constructs flexible, curved decision boundaries in the compressed 15-dimensional space and is better able to isolate smaller malware families from the dominant clusters. This leads to significantly higher recall on minority classes, which directly improves balanced accuracy. The SVM result is also the closest to the official NetML leaderboard performance, indicating that kernel-based methods can partially compensate for the information loss introduced by PCA.
