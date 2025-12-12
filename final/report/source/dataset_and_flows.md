@@ -16,6 +16,8 @@ intended NetML setup.
 I use the `pcalML` utility to build separate **pcap** files across flows.
 I use the `pcapml_fe` Python library to iterate over samples and associate the labels.
 
+Furthermore, on close inspection, I found out that the dataset has ambiguous names for benign label. Sometimes the label 'bengin' comes up, and sometimes 'benign7' comes up. I normalize all of them to 'benign'.
+
 ```python
 # Build flows
 !pcapml -M data/traffic.pcapng -O data/traffic_flows/
