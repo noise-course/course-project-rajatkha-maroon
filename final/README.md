@@ -10,15 +10,16 @@ The project uses many data files (originally provided and intermediately generat
 
 ```
 data/
+  traffic.pcapng.gz
+  traffic.pcapng
   traffic_flows/
   flow_features/
-  traffic.pcapng.gz
   labels_easy.txt
   labels_hard.txt
   all_flow_features_easy.csv
   all_flow_features_hard.csv
-  easy_pca_20_components.csv
-  hard_pca_20_components.csv
+  easy_pca_15_components.csv
+  hard_pca_15_components.csv
 ```
 
 ## Files originally provided
@@ -28,14 +29,15 @@ data/
 
 ## Files generated
 ```
-1. traffic_flows/
-2. flow_features/
-3. lables_easy.txt
-4. lables_hard.txt
-5. all_flow_features_easy.csv
-6. all_flow_features_hard.csv
-7. easy_pca_20_components.csv
-8. hard_pca_20_components.csv
+1. traffic.pcapng
+2. traffic_flows/
+3. flow_features/
+4. lables_easy.txt
+5. lables_hard.txt
+6. all_flow_features_easy.csv
+7. all_flow_features_hard.csv
+8. easy_pca_20_components.csv
+9. hard_pca_20_components.csv
 ```
 ## Note
 The github repository doesn't provide ```traffic.pcapng.gz``` due to its huge size. For a successful run, this file has to be placed under ```data/```.
