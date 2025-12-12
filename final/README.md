@@ -36,8 +36,8 @@ data/
 5. lables_hard.txt
 6. all_flow_features_easy.csv
 7. all_flow_features_hard.csv
-8. easy_pca_20_components.csv
-9. hard_pca_20_components.csv
+8. easy_pca_15_components.csv
+9. hard_pca_15_components.csv
 ```
 ## Note
 The github repository doesn't provide ```traffic.pcapng.gz``` due to its huge size. For a successful run, this file has to be placed under ```data/```.
