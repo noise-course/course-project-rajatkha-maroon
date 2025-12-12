@@ -54,7 +54,7 @@ Here is a typical workflow for the easy task:</p>
 or all the chunks are streamed.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="n">EASY_CSV</span> <span class="o">=</span> <span class="s2">&quot;all_flow_features_easy.csv&quot;</span>
+<span class="n">EASY_CSV</span> <span class="o">=</span> <span class="s2">&quot;./data/all_flow_features_easy.csv&quot;</span>
 <span class="n">CHUNKSIZE</span> <span class="o">=</span> <span class="mi">20000</span>
 <span class="n">TARGET_SAMPLE</span> <span class="o">=</span> <span class="mi">50000</span>
 
@@ -116,9 +116,9 @@ or all the chunks are streamed.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>From this plot, I observe that the first ~20 components capture a large fraction of the variance, and
+<p>From this plot, I observe that the first ~15 components capture a large fraction of the variance, and
 the curve begins to flatten afterward. Hence, for simplicity and efficiency, I fix:</p>
-<p>Number of components = 20 for both easy and hard classes.</p>
+<p>Number of components = 15 for both easy and hard classes.</p>
 </section>
 </section>
 <section id="incremental-pca-on-the-full-dataset">
@@ -126,41 +126,55 @@ the curve begins to flatten afterward. Hence, for simplicity and efficiency, I f
 <p>Instead of loading all rows at once (limited memory), I use chunked reading and <code class="docutils literal notranslate"><span class="pre">IncrementalPCA</span></code>.</p>
 <p>Below code is doing it for <strong>easy</strong> class. Similarly, its done for <strong>hard</strong>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">IncrementalPCA</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="n">EASY_CSV</span> <span class="o">=</span> <span class="s2">&quot;all_flow_features_easy.csv&quot;</span>
-<span class="n">OUT_EASY</span> <span class="o">=</span> <span class="s2">&quot;easy_pca_20_components.csv&quot;</span>
+<span class="n">EASY_CSV</span> <span class="o">=</span> <span class="s2">&quot;./data/all_flow_features_easy.csv&quot;</span>
+<span class="n">OUT_EASY_PCA</span> <span class="o">=</span> <span class="s2">&quot;./data/easy_pca_15_components.csv&quot;</span>
+<span class="n">N_COMPONENTS</span> <span class="o">=</span> <span class="mi">15</span>
 <span class="n">CHUNKSIZE</span> <span class="o">=</span> <span class="mi">20000</span>
-<span class="n">N_COMPONENTS</span> <span class="o">=</span> <span class="mi">20</span> 
+
+<span class="n">scaler_easy</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">pca_easy</span> <span class="o">=</span> <span class="n">IncrementalPCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">N_COMPONENTS</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">EASY_CSV</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="n">CHUNKSIZE</span><span class="p">):</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">chunk</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">,</span> <span class="s2">&quot;easy_label&quot;</span><span class="p">])</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span>
+    <span class="n">scaler_easy</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">EASY_CSV</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="n">CHUNKSIZE</span><span class="p">):</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">chunk</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">,</span> <span class="s2">&quot;easy_label&quot;</span><span class="p">])</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span>
+    <span class="n">X_scaled</span> <span class="o">=</span> <span class="n">scaler_easy</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">pca_easy</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">)</span>
 
 <span class="n">first_write</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">EASY_CSV</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="n">CHUNKSIZE</span><span class="p">):</span>
     <span class="n">sample_ids</span> <span class="o">=</span> <span class="n">chunk</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="n">chunk</span><span class="p">[</span><span class="s2">&quot;easy_label&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="c1"># build feature matrix</span>
-    <span class="n">X</span> <span class="o">=</span> <span class="n">chunk</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">,</span> <span class="s2">&quot;easy_label&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">chunk</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">,</span> <span class="s2">&quot;easy_label&quot;</span><span class="p">])</span>
     <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span>
+    <span class="n">X_scaled</span> <span class="o">=</span> <span class="n">scaler_easy</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">X_pca</span> <span class="o">=</span> <span class="n">pca_easy</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">)</span>
 
-    <span class="n">Xs</span> <span class="o">=</span> <span class="n">scaler_easy</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-    <span class="n">Xp</span> <span class="o">=</span> <span class="n">pca_easy</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span>
-
-    <span class="n">df_out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">Xp</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;pc</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_COMPONENTS</span><span class="p">)])</span>
+    <span class="n">df_out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X_pca</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;pc</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_COMPONENTS</span><span class="p">)])</span>
     <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_ids</span>
     <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;easy_label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span>
 
     <span class="n">df_out</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
-        <span class="n">OUT_EASY</span><span class="p">,</span>
+        <span class="n">OUT_EASY_PCA</span><span class="p">,</span>
         <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span> <span class="k">if</span> <span class="n">first_write</span> <span class="k">else</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span>
         <span class="n">header</span><span class="o">=</span><span class="n">first_write</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">first_write</span> <span class="o">=</span> <span class="kc">False</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Easy PCA fit complete&quot;</span><span class="p">,</span> <span class="n">OUT_EASY</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reduced easy PCA dataset written to&quot;</span><span class="p">,</span> <span class="n">OUT_EASY_PCA</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Now, we have two more CSVs (PCA features) for easy and hard classes under <code class="docutils literal notranslate"><span class="pre">data</span></code>: <code class="docutils literal notranslate"><span class="pre">easy_pca_20_components.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">hard_pca_20_components.csv</span></code>.</p>
+<p>Now, we have two more CSVs (reduced dimensionality) for easy and hard classes under <code class="docutils literal notranslate"><span class="pre">data</span></code>: <code class="docutils literal notranslate"><span class="pre">easy_pca_15_components.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">hard_pca_15_components.csv</span></code>.</p>
 </section>
 </section>
 

@@ -33,9 +33,7 @@
             
   <section id="dataset-and-flow-extraction">
 <h1>2. Dataset and flow extraction<a class="headerlink" href="#dataset-and-flow-extraction" title="Link to this heading">¶</a></h1>
-<p>The starting point is the <strong>NetML Malware</strong> dataset, which ships as a single
-pcapML / pcapng file (e.g. <code class="docutils literal notranslate"><span class="pre">traffic.pcapng</span></code>). Internally, this file encodes
-many flow-level samples along with metadata.</p>
+<p>The starting point is the <strong>NetML Malware</strong> dataset, which ships as a single pcapML / pcapng file (e.g. <code class="docutils literal notranslate"><span class="pre">traffic.pcapng</span></code>). Internally, this file encodes many flow-level samples along with metadata.</p>
 <p>Each sample has:</p>
 <ul class="simple">
 <li><p>a set of packets (raw bytes for one flow),</p></li>
@@ -46,22 +44,38 @@ many flow-level samples along with metadata.</p>
 </ul>
 </li>
 </ul>
-<p>Rather than implementing my own flow-timeout logic, I <strong>reuse the flow
-boundaries provided by pcapML</strong>. This helps keep the pipeline closer to the
+<p>Rather than implementing my own flow-timeout logic, I reuse the flow
+boundaries provided by pcapML. This helps keep the pipeline closer to the
 intended NetML setup.</p>
 <p>I use the <code class="docutils literal notranslate"><span class="pre">pcalML</span></code> utility to build separate <strong>pcap</strong> files across flows.
-I use the <code class="docutils literal notranslate"><span class="pre">pcapml_fe</span></code> Python library to iterate over samples and fetch the labels.</p>
+I use the <code class="docutils literal notranslate"><span class="pre">pcapml_fe</span></code> Python library to iterate over samples and associate the labels.</p>
+<p>Furthermore, on close inspection, I found out that the dataset has ambiguous names for benign label. Sometimes the label ‘bengin’ comes up, and sometimes ‘benign7’ comes up. I normalize all of them to ‘benign’.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build flows</span>
-<span class="err">!</span><span class="n">pcapml</span> <span class="o">-</span><span class="n">M</span> <span class="n">traffic</span><span class="o">.</span><span class="n">pcapng</span> <span class="o">-</span><span class="n">O</span> <span class="n">traffic_flows</span><span class="o">/</span>
+<span class="err">!</span><span class="n">pcapml</span> <span class="o">-</span><span class="n">M</span> <span class="n">data</span><span class="o">/</span><span class="n">traffic</span><span class="o">.</span><span class="n">pcapng</span> <span class="o">-</span><span class="n">O</span> <span class="n">data</span><span class="o">/</span><span class="n">traffic_flows</span><span class="o">/</span>
+
+<span class="k">def</span> <span class="nf">normalize_easy_label</span><span class="p">(</span><span class="n">lbl</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">lbl</span> <span class="o">=</span> <span class="n">lbl</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;benign&quot;</span><span class="p">,</span> <span class="s2">&quot;bengin&quot;</span><span class="p">,</span> <span class="s2">&quot;benign7&quot;</span><span class="p">]:</span> 
+        <span class="k">return</span> <span class="s2">&quot;benign&quot;</span>
+    <span class="k">elif</span> <span class="n">lbl</span> <span class="o">==</span> <span class="s2">&quot;malware&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;malware&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">lbl</span> 
+
+<span class="k">def</span> <span class="nf">normalize_hard_label</span><span class="p">(</span><span class="n">lbl</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">lbl</span> <span class="o">=</span> <span class="n">lbl</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;benign&quot;</span><span class="p">,</span> <span class="s2">&quot;benign7&quot;</span><span class="p">,</span> <span class="s2">&quot;bengin&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="s2">&quot;benign&quot;</span>
+    <span class="k">return</span> <span class="n">lbl</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">struct</span>
 <span class="kn">import</span> <span class="nn">pcapml_fe</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
-<span class="n">pcapml_path</span> <span class="o">=</span> <span class="s2">&quot;./traffic.pcapng&quot;</span>
-<span class="n">labels_easy_path</span> <span class="o">=</span> <span class="s2">&quot;./labels_easy.txt&quot;</span>
-<span class="n">labels_hard_path</span> <span class="o">=</span> <span class="s2">&quot;./labels_hard.txt&quot;</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="s2">&quot;./data/traffic.pcapng&quot;</span>
+<span class="n">labels_easy_file</span> <span class="o">=</span> <span class="s2">&quot;./data/labels_easy.txt&quot;</span>
+<span class="n">labels_hard_file</span> <span class="o">=</span> <span class="s2">&quot;./data/labels_hard.txt&quot;</span>
 
 <span class="k">def</span> <span class="nf">parse_labels</span><span class="p">(</span><span class="n">meta_str</span><span class="p">):</span>
     <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">meta_str</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
@@ -71,12 +85,14 @@ I use the <code class="docutils literal notranslate"><span class="pre">pcapml_fe
     
     <span class="k">return</span> <span class="n">easy</span><span class="p">,</span> <span class="n">hard</span>
 
-<span class="c1"># Build labels</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">labels_easy_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">le</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">labels_hard_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">lh</span><span class="p">:</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sample</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pcapml_fe</span><span class="o">.</span><span class="n">sampler</span><span class="p">(</span><span class="n">pcapml_path</span><span class="p">)):</span>
-        <span class="n">fname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sample</span><span class="o">.</span><span class="n">sid</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">labels_easy_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">le</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">labels_hard_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">lh</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sample</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pcapml_fe</span><span class="o">.</span><span class="n">sampler</span><span class="p">(</span><span class="n">dataset</span><span class="p">)):</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sample</span><span class="o">.</span><span class="n">sid</span><span class="si">}</span><span class="s2">&quot;</span> <span class="c1"># Sample ID</span>
 
         <span class="n">easy</span><span class="p">,</span> <span class="n">hard</span> <span class="o">=</span> <span class="n">parse_labels</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="n">easy</span> <span class="o">=</span> <span class="n">normalize_easy_label</span><span class="p">(</span><span class="n">easy</span><span class="p">)</span>
+        <span class="n">hard</span> <span class="o">=</span> <span class="n">normalize_hard_label</span><span class="p">(</span><span class="n">hard</span><span class="p">)</span>
 
         <span class="c1"># Write labels into the file</span>
         <span class="n">le</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">easy</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -84,29 +100,24 @@ I use the <code class="docutils literal notranslate"><span class="pre">pcapml_fe
 
         <span class="c1"># Progress indicator</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">100000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrote </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> flow pcaps...&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrote </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> labels...&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Easy labels in:&quot;</span><span class="p">,</span> <span class="n">labels_easy_path</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hard labels in:&quot;</span><span class="p">,</span> <span class="n">labels_hard_path</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Easy labels in:&quot;</span><span class="p">,</span> <span class="n">labels_easy_file</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hard labels in:&quot;</span><span class="p">,</span> <span class="n">labels_hard_file</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>After this stage, the data looks like this:
-data/</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>traffic_flows/
-
-	10000002068136406352_malware_emotet.pcap
-	
-	10000026091954898561_bengin_benign.pcap
-	
-	...
-	
-labels_easy.txt
-
-labels_hard.txt
+<p>After this stage, the data looks like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="o">/</span>
+	<span class="n">traffic_flows</span><span class="o">/</span>
+		<span class="mi">10000002068136406352</span><span class="n">_malware_emotet</span><span class="o">.</span><span class="n">pcap</span>
+		<span class="mi">10000026091954898561</span><span class="n">_bengin_benign</span><span class="o">.</span><span class="n">pcap</span>
+		<span class="o">...</span>
+		<span class="o">...</span>
+	<span class="n">labels_easy</span><span class="o">.</span><span class="n">txt</span>
+	<span class="n">labels_hard</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
-<p>Each line of labels_easy/hard.txt is <code class="docutils literal notranslate"><span class="pre">sampleId,label</span></code></p>
-<p>…</p>
+<p>Each line of labels_easy/hard.txt is <code class="docutils literal notranslate"><span class="pre">sampleId,label</span></code>.</p>
 </section>
 
 

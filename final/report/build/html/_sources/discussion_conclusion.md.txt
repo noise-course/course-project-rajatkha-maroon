@@ -18,13 +18,12 @@ Several key points emerged:
   configuration does not match the official NetML feature pipeline.
 
 - **Dimensionality reduction is essential for practicality.**  
-  The original feature matrices are large and dense. PCA reduced them from ~1000 dimensions to just 20, making it feasible to train multiple models
+  The original feature matrices are large and dense. PCA reduced them from ~1000 dimensions to just 15, making it feasible to train multiple models
   quickly on a laptop. IncrementalPCA and chunked IO were crucial to fit the transforms without exhausting memory.
 
 - **Model choice interacts with preprocessing.**  
   Linear models (Logistic Regression, SGD) benefited from PCA and standardized inputs. Tree-based models (Random Forest, Gradient Boosting, XGBoost) handled
-  the PCA-transformed data well and generally achieved better accuracy and balanced accuracy than linear models. However, because the feature extraction
-  itself was suboptimal, even the best model did not reach the high numbers reported in the official NetML benchmarks.
+  the PCA-transformed data well and generally achieved better accuracy and balanced accuracy than linear models. 
 
 - **Easy vs. hard labels.**  
   The easy binary task (malware vs benign) is simpler and generally yields higher accuracy than the hard malware-family task. The hard task suffers from

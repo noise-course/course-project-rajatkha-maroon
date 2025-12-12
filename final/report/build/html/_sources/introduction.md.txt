@@ -30,8 +30,6 @@ The goals of the project are:
 * To apply dimensionality reduction (PCA) to make large-scale training
   tractable on commodity hardware, and to study how many components are
   sufficient.
-* To compare several classical models (logistic regression, SGD,
-  random forests, gradient boosting, and optionally XGBoost) on both
+* To compare several classical models on both
   the easy and hard labels.
-* To outline how one would reproduce the official NetML leaderboard
-  results.
+* To execute netML Autogluon model and test the results.

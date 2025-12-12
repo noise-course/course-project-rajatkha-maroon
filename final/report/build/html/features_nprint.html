@@ -39,13 +39,14 @@ packet headers and payload bytes.</p>
 <section id="per-flow-feature-extraction">
 <h2>3.1 Per-flow feature extraction<a class="headerlink" href="#per-flow-feature-extraction" title="Link to this heading">¶</a></h2>
 <p>For each per-flow PCAP, I run a command of the form:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nprint<span class="w"> </span>-P<span class="w"> </span>10000002068136406352_malware_emotet.pcap<span class="w"> </span>-W<span class="w"> </span>10000002068136406352_malware_emotet.csv<span class="w"> </span>-4<span class="w"> </span>-t<span class="w"> </span>-u<span class="w"> </span>-p<span class="w"> </span><span class="m">20</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nprint<span class="w"> </span>-P<span class="w"> </span>&lt;pcap<span class="w"> </span>file&gt;<span class="w"> </span>-W<span class="w"> </span>&lt;features.csv&gt;<span class="w"> </span>-4<span class="w"> </span>-6<span class="w"> </span>-t<span class="w"> </span>-u<span class="w"> </span>-p<span class="w"> </span><span class="m">20</span>
 </pre></div>
 </div>
 <p>Where:</p>
 <p>-P specifies the input PCAP,</p>
 <p>-W selects a CSV output file,</p>
 <p>-4 includes IPv4 headers,</p>
+<p>-6 includes IPV6 headers,</p>
 <p>-t includes TCP headers,</p>
 <p>-u includes UDP headers,</p>
 <p>-p 20 includes 20 bytes of payload.</p>
@@ -54,16 +55,15 @@ packet headers and payload bytes.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
-<span class="n">FLOW_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;traffic_flows&quot;</span><span class="p">)</span>
-<span class="n">FEATURE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;flow_features&quot;</span><span class="p">)</span>
-<span class="n">FEATURE_DIR</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">flows_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./data/traffic_flows&quot;</span><span class="p">)</span>
+<span class="n">features_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./data/flow_features&quot;</span><span class="p">)</span>
+<span class="n">features_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">pcaps</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">FLOW_DIR</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.pcap&quot;</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Num flows =&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pcaps</span><span class="p">))</span>
+<span class="n">pcaps</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">flows_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.pcap&quot;</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">run_nprint</span><span class="p">(</span><span class="n">pcap_path</span><span class="p">):</span>
     <span class="n">base</span> <span class="o">=</span> <span class="n">pcap_path</span><span class="o">.</span><span class="n">stem</span>
-    <span class="n">out_csv</span> <span class="o">=</span> <span class="n">FEATURE_DIR</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">.csv&quot;</span>
+    <span class="n">out_csv</span> <span class="o">=</span> <span class="n">features_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">.csv&quot;</span>
 
     <span class="k">if</span> <span class="n">out_csv</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">out_csv</span>
@@ -72,7 +72,7 @@ packet headers and payload bytes.</p>
         <span class="s2">&quot;nprint&quot;</span><span class="p">,</span>
         <span class="s2">&quot;-P&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">pcap_path</span><span class="p">),</span>
         <span class="s2">&quot;-W&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">out_csv</span><span class="p">),</span>
-        <span class="s2">&quot;-4&quot;</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;-u&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-4&quot;</span><span class="p">,</span> <span class="s2">&quot;-6&quot;</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;-u&quot;</span><span class="p">,</span>
         <span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;20&quot;</span>
     <span class="p">]</span>
     <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -80,72 +80,50 @@ packet headers and payload bytes.</p>
 
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pcaps</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
     <span class="n">run_nprint</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">50000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+
+    <span class="c1"># Progress indicator</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">100000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processed </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> flows...&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Features for all flows in:&quot;</span><span class="p">,</span> <span class="n">features_dir</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>A new directory <code class="docutils literal notranslate"><span class="pre">flow_features</span></code> is created, under which all CSVs are populated.</p>
 </section>
 <section id="merging-per-flow-csvs-with-labels">
 <h2>Merging per-flow CSVs with labels<a class="headerlink" href="#merging-per-flow-csvs-with-labels" title="Link to this heading">¶</a></h2>
-<p>This handles dataset creation for traninig. All CSVs are merged and replicated in 2 unified CSVs (one for <strong>easy</strong> and one for <strong>hard</strong> class).
+<p>This handles dataset creation for training. All CSVs are merged and replicated in 2 unified CSVs (one for <strong>easy</strong> and one for <strong>hard</strong> class).
 I create a dictionary by first iterating over the flow labels and then merge all the CSVs by streaming them in the output files (streaming because of memory limitation).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<p>First I generate a map of the labels.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="n">FEATURE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;flow_features&quot;</span><span class="p">)</span>
-<span class="n">OUT_EASY</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;all_flow_features_easy.csv&quot;</span><span class="p">)</span>
-<span class="n">OUT_HARD</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;all_flow_features_hard.csv&quot;</span><span class="p">)</span>
+<span class="n">easy_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;./data/labels_easy.txt&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">,</span> <span class="s2">&quot;easy_label&quot;</span><span class="p">])</span>
+<span class="n">hard_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;./data/labels_hard.txt&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">,</span> <span class="s2">&quot;hard_label&quot;</span><span class="p">])</span>
 
-<span class="n">csv_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">FEATURE_DIR</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.csv&quot;</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Num CSV files:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">csv_files</span><span class="p">))</span>
+<span class="n">easy_df</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">easy_df</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="n">hard_df</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hard_df</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="ow">not</span> <span class="n">csv_files</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No CSV files found in flow_features/&quot;</span><span class="p">)</span>
+<span class="n">easy_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">easy_df</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">],</span> <span class="n">easy_df</span><span class="p">[</span><span class="s2">&quot;easy_label&quot;</span><span class="p">]))</span>
+<span class="n">hard_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">hard_df</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">],</span> <span class="n">hard_df</span><span class="p">[</span><span class="s2">&quot;hard_label&quot;</span><span class="p">]))</span>
 
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Easy labels:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">easy_map</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hard labels:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">hard_map</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Then, I generate a unified dataset for each class.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="k">with</span> <span class="n">csv_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">header</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="n">easy_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;./data/labels_easy.txt&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">,</span> <span class="s2">&quot;easy_label&quot;</span><span class="p">])</span>
+<span class="n">hard_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;./data/labels_hard.txt&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">,</span> <span class="s2">&quot;hard_label&quot;</span><span class="p">])</span>
 
+<span class="n">easy_df</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">easy_df</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="n">hard_df</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hard_df</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
 
-<span class="k">with</span> <span class="n">OUT_EASY</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_easy</span><span class="p">,</span> <span class="n">OUT_HARD</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_hard</span><span class="p">:</span>
-    <span class="c1"># Write combined headers</span>
-    <span class="n">out_easy</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span> <span class="o">+</span> <span class="s2">&quot;,sample_id,easy_label</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">out_hard</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span> <span class="o">+</span> <span class="s2">&quot;,sample_id,hard_label</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">easy_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">easy_df</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">],</span> <span class="n">easy_df</span><span class="p">[</span><span class="s2">&quot;easy_label&quot;</span><span class="p">]))</span>
+<span class="n">hard_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">hard_df</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">],</span> <span class="n">hard_df</span><span class="p">[</span><span class="s2">&quot;hard_label&quot;</span><span class="p">]))</span>
 
-    <span class="c1"># Stream one data line per file</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">csv_files</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
-        <span class="n">sample_id</span> <span class="o">=</span> <span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-
-
-        <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span> 
-            <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>    <span class="c1"># there should be exactly 1 data row</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
-            <span class="k">continue</span>
-
-        <span class="c1"># Lookup labels</span>
-        <span class="n">sid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">sample_id</span><span class="p">)</span>
-        <span class="n">easy_label</span> <span class="o">=</span> <span class="n">easy_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span>
-        <span class="n">hard_label</span> <span class="o">=</span> <span class="n">hard_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">easy_label</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">hard_label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">continue</span>
-
-        <span class="c1"># Write to easy and hard output CSVs</span>
-        <span class="n">out_easy</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">sid</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">easy_label</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">out_hard</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">sid</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">hard_label</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Progress track</span>
-        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">50000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Merged </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> files...&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done.&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Easy CSV:&quot;</span><span class="p">,</span> <span class="n">OUT_EASY</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hard CSV:&quot;</span><span class="p">,</span> <span class="n">OUT_HARD</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Easy labels:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">easy_map</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hard labels:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">hard_map</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Eventually, the <code class="docutils literal notranslate"><span class="pre">data/</span></code> wounds up with 2 more files: <code class="docutils literal notranslate"><span class="pre">all_flow_features_easy.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">all_flow_features_hard.csv</span></code>.</p>
