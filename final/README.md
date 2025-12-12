@@ -44,8 +44,8 @@ The github repository doesn't provide ```traffic.pcapng.gz``` due to its huge si
 
 # Run
 
-1. ```jupyter notebook main.ipynb```
-2. Run the notebook from the start.
+1. ```jupyter notebook```
+2. Run the notebook (main.ipynb) from the start.
 
 # Results
 1. **RandomForest**, **LogReg**, and **SGD_logreg** achieve >99% balanced accuracy on **easy** class, while 70%, 60%, and 55% on **hard** class.
