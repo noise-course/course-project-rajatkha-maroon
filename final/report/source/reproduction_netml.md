@@ -38,7 +38,7 @@ print("Autogluon balanced accuracy:",
 2. For hard: Autogluon accuracy: 0.9123683418597652, Autogluon balanced accuracy: 0.7536582945717588
 
 ## 6.2 Interpretation
-The benchmarks reports balanced accuracy ~0.80+ for the best model, whereas my Autogluon score is 0.7536 balanced accuracy. I think this might be attributed to the following reasons:
+The benchmarks reports balanced accuracy 0.80+ for the best model, whereas my Autogluon score is 0.7536 balanced accuracy. I think this might be attributed to the following reasons:
 
-1. PCA removes some family-level discriminative structure. While PCA preserves global variance, it does not preserve: fine-grained n-gram patterns, family-specific structural markers, small-class subtleties.
+1. While PCA preserves global variance, it does not preserve: fine-grained patterns, and fine differences in small classes.
 2. Flow-generation mismatch with official pipeline: It might be possible that flow generation is mismatched with the original pipeline.
