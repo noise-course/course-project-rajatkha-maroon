@@ -1,8 +1,6 @@
 # 3. Feature Generation with nPrint
 
-The next step is to convert each per-flow PCAP into a fixed-length feature vector
-using **nPrint**. These features are essentially hashed summaries of
-packet headers and payload bytes.
+The next step is to convert each per-flow PCAP into a fixed-length feature vector using **nPrint**. These features are essentially summaries of packet headers and payload bytes.
 
 ## 3.1 Per-flow feature extraction
 
@@ -27,7 +25,7 @@ Where:
 
 -p 20 includes 20 bytes of payload.
 
-This yields one CSV per flow, each with a single row of hashed feature values.
+This yields one CSV per flow, each with a single row of feature values.
 
 Essentially, this is automated in a loop:
 ```python

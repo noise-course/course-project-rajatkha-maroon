@@ -35,9 +35,7 @@
             
   <section id="feature-generation-with-nprint">
 <h1>3. Feature Generation with nPrint<a class="headerlink" href="#feature-generation-with-nprint" title="Link to this heading">¶</a></h1>
-<p>The next step is to convert each per-flow PCAP into a fixed-length feature vector
-using <strong>nPrint</strong>. These features are essentially hashed summaries of
-packet headers and payload bytes.</p>
+<p>The next step is to convert each per-flow PCAP into a fixed-length feature vector using <strong>nPrint</strong>. These features are essentially summaries of packet headers and payload bytes.</p>
 <section id="per-flow-feature-extraction">
 <h2>3.1 Per-flow feature extraction<a class="headerlink" href="#per-flow-feature-extraction" title="Link to this heading">¶</a></h2>
 <p>For each per-flow PCAP, I run a command of the form:</p>
@@ -52,7 +50,7 @@ packet headers and payload bytes.</p>
 <p>-t includes TCP headers,</p>
 <p>-u includes UDP headers,</p>
 <p>-p 20 includes 20 bytes of payload.</p>
-<p>This yields one CSV per flow, each with a single row of hashed feature values.</p>
+<p>This yields one CSV per flow, each with a single row of feature values.</p>
 <p>Essentially, this is automated in a loop:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>

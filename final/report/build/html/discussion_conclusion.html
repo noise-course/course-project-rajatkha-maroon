@@ -40,14 +40,14 @@
 <ol class="arabic simple">
 <li><p>Starting from the NetML Malware pcapML file</p></li>
 <li><p>Extracting flows and labels</p></li>
-<li><p>Generating hashed features with nPrint</p></li>
+<li><p>Generating features with nPrint</p></li>
 <li><p>Applying PCA-based dimensionality reduction</p></li>
 <li><p>Training and evaluating several classical ML models.</p></li>
 </ol>
 <p>Several key points emerged:</p>
 <ol class="arabic simple">
 <li><p><strong>Feature extraction configuration matters</strong><br />
-Even when using the same dataset and similar modeling techniques, small changes in nPrint / nPrintML configuration (headers, payload length, hash
+Even when using the same dataset and similar modeling techniques, small changes in nPrint / nPrintML configuration (headers, payload length,
 size, etc.) can alter performance. This might be a possible source of inconsistency with my derived balanced accuracies for hard dataset.</p></li>
 <li><p><strong>Dimensionality reduction is essential for practicality.</strong><br />
 The original feature matrices are large and dense. PCA reduced them from 1000 dimensions to just 15, making it feasible to train multiple models
@@ -63,7 +63,7 @@ class imbalance and possible overlap between families, hence the lower balanced 
 <ol class="arabic simple">
 <li><p>Match the nPrintML feature configuration to the official settings.</p></li>
 <li><p>Incorporate tools to search a larger model space with cross-validation.</p></li>
-<li><p>Explore sequence-based models (e.g., CNNs or Transformers over packet byte sequences) as an alternative to static hashed feature vectors.</p></li>
+<li><p>Explore sequence-based models (e.g., CNNs or Transformers over packet byte sequences) as an alternative.</p></li>
 <li><p>Explore hyper-parameter settings of the models used.</p></li>
 </ol>
 </section>
