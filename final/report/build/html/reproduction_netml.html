@@ -14,6 +14,8 @@
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="7. Conclusion, discussion, and future work" href="discussion_conclusion.html" />
+    <link rel="prev" title="5. Models and training" href="models_and_training.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -72,9 +74,9 @@
 </section>
 <section id="interpretation">
 <h2>6.2 Interpretation<a class="headerlink" href="#interpretation" title="Link to this heading">¶</a></h2>
-<p>The benchmarks reports balanced accuracy ~0.80+ for the best model, whereas my Autogluon score is 0.7536 balanced accuracy. I think this might be attributed to the following reasons:</p>
+<p>The benchmarks reports balanced accuracy 0.80+ for the best model, whereas my Autogluon score is 0.7536 balanced accuracy. I think this might be attributed to the following reasons:</p>
 <ol class="arabic simple">
-<li><p>PCA removes some family-level discriminative structure. While PCA preserves global variance, it does not preserve: fine-grained n-gram patterns, family-specific structural markers, small-class subtleties.</p></li>
+<li><p>While PCA preserves global variance, it does not preserve: fine-grained patterns, and fine differences in small classes.</p></li>
 <li><p>Flow-generation mismatch with official pipeline: It might be possible that flow generation is mismatched with the original pipeline.</p></li>
 </ol>
 </section>
@@ -107,15 +109,26 @@
 </search>
 <script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">1. Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="results.html">6. Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset_and_flows.html">2. Dataset and flow extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features_nprint.html">3. Feature Generation with nPrint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pca_dim_reduction.html">4. Dimensionality reduction with PCA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models_and_training.html">5. Models and training</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">6. netML Autogluon</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#evaluation">6.1 Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interpretation">6.2 Interpretation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="discussion_conclusion.html">7. Conclusion, discussion, and future work</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="models_and_training.html" title="previous chapter">5. Models and training</a></li>
+      <li>Next: <a href="discussion_conclusion.html" title="next chapter">7. Conclusion, discussion, and future work</a></li>
   </ul></li>
 </ul>
 </div>

@@ -93,19 +93,46 @@ print("Hard labels:", len(hard_map))
 Then, I generate a unified dataset for each class.
 
 ```python
-import pandas as pd
+from pathlib import Path
 
-easy_df = pd.read_csv("./data/labels_easy.txt", header=None, names=["sample_id", "easy_label"])
-hard_df = pd.read_csv("./data/labels_hard.txt", header=None, names=["sample_id", "hard_label"])
+features_dir = Path("./data/flow_features")
+OUT_EASY = Path("./data/all_flow_features_easy.csv")
+OUT_HARD = Path("./data/all_flow_features_hard.csv")
 
-easy_df["sample_id"] = easy_df["sample_id"].astype(str)
-hard_df["sample_id"] = hard_df["sample_id"].astype(str)
+csv_files = sorted(features_dir.glob("*.csv"))
+print("Num CSV files:", len(csv_files))
 
-easy_map = dict(zip(easy_df["sample_id"], easy_df["easy_label"]))
-hard_map = dict(zip(hard_df["sample_id"], hard_df["hard_label"]))
+with csv_files[0].open() as f:
+    header = f.readline().strip()
 
-print("Easy labels:", len(easy_map))
-print("Hard labels:", len(hard_map))
+with OUT_EASY.open("w") as out_easy, OUT_HARD.open("w") as out_hard:
+    out_easy.write(header + ",sample_id,easy_label\n")
+    out_hard.write(header + ",sample_id,hard_label\n")
+
+    # Stream one data line per file
+    for i, path in enumerate(csv_files, 1):
+        fname = path.name
+        sample_id = fname.split("_")[0]
+
+        with path.open() as f:
+            _ = f.readline() 
+            line = f.readline().strip()
+
+        # Lookup labels
+        sid = str(sample_id)
+        easy_label = easy_map.get(sid)
+        hard_label = hard_map.get(sid)
+
+        # Write to easy and hard output CSVs
+        out_easy.write(f"{line},{sid},{easy_label}\n")
+        out_hard.write(f"{line},{sid},{hard_label}\n")
+
+        # Progress indicator
+        if i % 50000 == 0:
+            print(f"Merged {i} files...")
+
+print("Unified easy CSV:", OUT_EASY)
+print("Unified hard CSV:", OUT_HARD)
 ```
 
 Eventually, the ```data/``` wounds up with 2 more files: ```all_flow_features_easy.csv``` and ```all_flow_features_hard.csv```.

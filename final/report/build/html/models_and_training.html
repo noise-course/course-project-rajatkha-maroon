@@ -78,9 +78,9 @@
 <p>All three models achieve virtually perfect performance (balanced accuracy ≥ 0.9999).
 This indicates:</p>
 <ol class="arabic simple">
-<li><p>The PCA representation preserves almost all the discriminative information needed to distinguish benign from malware flows.</p></li>
+<li><p>The PCA representation preserves almost all the necessary information needed to distinguish benign from malware flows.</p></li>
 <li><p>The binary decision boundary is extremely well-structured, meaning that even linear models (LogReg, SGD) find a clean separation between the two classes.</p></li>
-<li><p>The dataset at the easy-label level is highly linearly separable, at least after nPrint hashing + PCA projection.</p></li>
+<li><p>The dataset for the easy class is highly linearly separable.</p></li>
 </ol>
 </section>
 <section id="interpretation-for-hard-class">
@@ -89,8 +89,8 @@ This indicates:</p>
 <p>Key observations:</p>
 <ol class="arabic simple">
 <li><p>Random Forest performs best on the hard task: achieves 88% accuracy, but only 70% balanced accuracy. This gap means the model favors the majority families and struggles on minority ones.</p></li>
-<li><p>Linear models perform noticeably worse. Logistic Regression: 83% accuracy but only 58% balanced accuracy. SGD: drops further to ~52% balanced accuracy. This indicates that malware families are not linearly separable in 15-dimensional PCA space.</p></li>
-<li><p>Macro precision/recall reveal imbalance issues: Macro averaging gives each class equal weight. The drop from accuracy to macro F1 suggests that some families dominate the dataset while others are rare.</p></li>
+<li><p>Linear models perform noticeably worse. Logistic Regression: 83% accuracy but only 58% balanced accuracy. SGD: drops further to ~52% balanced accuracy. This indicates that malware families are not linearly separable.</p></li>
+<li><p>Macro precision/recall reveal imbalance issues.</p></li>
 </ol>
 </section>
 <section id="testing-other-models-v2">
@@ -105,15 +105,16 @@ This indicates:</p>
 </section>
 <section id="evaluation-on-other-models-v2">
 <h2>5.6. Evaluation on other models (v2)<a class="headerlink" href="#evaluation-on-other-models-v2" title="Link to this heading">¶</a></h2>
-<p>After introducing additional models better suited to nonlinear and high-dimensional hashed feature spaces, the hard-task results improved noticeably. The new metrics are:</p>
+<p>After introducing additional models better suited to nonlinear feature spaces, the hard-task results improved noticeably. The new results are:</p>
 <p>Model	             Accuracy	Balanced Acc	Precision (macro)	Recall (macro)	F1 (macro)</p>
 <p>ExtraTrees	         0.8813	    0.6937	        0.7192	            0.6937	        0.6974</p>
 <p>HistGradientBoosting 0.9010	    0.7329	        0.7081	            0.7329	        0.7070</p>
 <p>SVM_rbf              0.8825     0.7741          0.7685              0.7741          0.7147</p>
+<p>Due to time limit, I could’t run GradientBoost, XGBoost, and others which could have performed slightly better.</p>
 </section>
 <section id="intepretation-on-other-models-v2">
 <h2>5.7. Intepretation on other models (v2)<a class="headerlink" href="#intepretation-on-other-models-v2" title="Link to this heading">¶</a></h2>
-<p>The standout model is the SVM with RBF kernel, which achieves 0.7741 balanced accuracy, the highest among all tested methods. Unlike tree models, the RBF kernel constructs flexible, curved decision boundaries in the compressed 15-dimensional space and is better able to isolate smaller malware families from the dominant clusters. This leads to significantly higher recall on minority classes, which directly improves balanced accuracy. The SVM result is also the closest to the official NetML leaderboard performance, indicating that kernel-based methods can partially compensate for the information loss introduced by PCA.</p>
+<p>The best model is the SVM with RBF kernel, which achieves 0.7741 balanced accuracy, the highest among all tested methods. Unlike tree models, the RBF kernel constructs curved decision boundaries and is better able to isolate non-linearly separable data. This improves balanced accuracy. The SVM result is also the closest to the official NetML leaderboard performance, indicating that the above methods can partially compensate for the information loss introduced by PCA.</p>
 </section>
 </section>
 
@@ -161,7 +162,7 @@ This indicates:</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="reproduction_netml.html">6. netML Autogluon</a></li>
-<li class="toctree-l1"><a class="reference internal" href="discussion_conclusion.html">8. Conclusion, discussion, and future work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="discussion_conclusion.html">7. Conclusion, discussion, and future work</a></li>
 </ul>
 
 <div class="relations">

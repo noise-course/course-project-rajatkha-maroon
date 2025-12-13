@@ -51,9 +51,9 @@ I evaluate the following models:
 All three models achieve virtually perfect performance (balanced accuracy ≥ 0.9999).
 This indicates:
 
-1. The PCA representation preserves almost all the discriminative information needed to distinguish benign from malware flows.
+1. The PCA representation preserves almost all the necessary information needed to distinguish benign from malware flows.
 2. The binary decision boundary is extremely well-structured, meaning that even linear models (LogReg, SGD) find a clean separation between the two classes.
-3. The dataset at the easy-label level is highly linearly separable, at least after nPrint hashing + PCA projection.
+3. The dataset for the easy class is highly linearly separable.
 
 ## 5.4. Interpretation for hard class
 Results are significantly lower than the easy task.
@@ -61,8 +61,8 @@ Results are significantly lower than the easy task.
 Key observations:
 
 1. Random Forest performs best on the hard task: achieves 88% accuracy, but only 70% balanced accuracy. This gap means the model favors the majority families and struggles on minority ones.
-2. Linear models perform noticeably worse. Logistic Regression: 83% accuracy but only 58% balanced accuracy. SGD: drops further to ~52% balanced accuracy. This indicates that malware families are not linearly separable in 15-dimensional PCA space.
-3. Macro precision/recall reveal imbalance issues: Macro averaging gives each class equal weight. The drop from accuracy to macro F1 suggests that some families dominate the dataset while others are rare.
+2. Linear models perform noticeably worse. Logistic Regression: 83% accuracy but only 58% balanced accuracy. SGD: drops further to ~52% balanced accuracy. This indicates that malware families are not linearly separable.
+3. Macro precision/recall reveal imbalance issues.
 
 ## 5.5. Testing other models (v2)
 On the hard class, I also evaluate the following models:
@@ -73,7 +73,7 @@ On the hard class, I also evaluate the following models:
 4. SVM_rbf
 
 ## 5.6. Evaluation on other models (v2)
-After introducing additional models better suited to nonlinear and high-dimensional hashed feature spaces, the hard-task results improved noticeably. The new metrics are:
+After introducing additional models better suited to nonlinear feature spaces, the hard-task results improved noticeably. The new results are:
 
 Model	             Accuracy	Balanced Acc	Precision (macro)	Recall (macro)	F1 (macro)
 
@@ -83,5 +83,7 @@ HistGradientBoosting 0.9010	    0.7329	        0.7081	            0.7329	       
 
 SVM_rbf              0.8825     0.7741          0.7685              0.7741          0.7147
 
+Due to time limit, I could't run GradientBoost, XGBoost, and others which could have performed slightly better.
+
 ## 5.7. Intepretation on other models (v2)
-The standout model is the SVM with RBF kernel, which achieves 0.7741 balanced accuracy, the highest among all tested methods. Unlike tree models, the RBF kernel constructs flexible, curved decision boundaries in the compressed 15-dimensional space and is better able to isolate smaller malware families from the dominant clusters. This leads to significantly higher recall on minority classes, which directly improves balanced accuracy. The SVM result is also the closest to the official NetML leaderboard performance, indicating that kernel-based methods can partially compensate for the information loss introduced by PCA.
+The best model is the SVM with RBF kernel, which achieves 0.7741 balanced accuracy, the highest among all tested methods. Unlike tree models, the RBF kernel constructs curved decision boundaries and is better able to isolate non-linearly separable data. This improves balanced accuracy. The SVM result is also the closest to the official NetML leaderboard performance, indicating that the above methods can partially compensate for the information loss introduced by PCA.

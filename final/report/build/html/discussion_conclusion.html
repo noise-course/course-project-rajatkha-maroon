@@ -38,35 +38,31 @@
 <h2>7.1 Conclusion and discussion<a class="headerlink" href="#conclusion-and-discussion" title="Link to this heading">¶</a></h2>
 <p>This project explored an end-to-end malware traffic classification pipeline:</p>
 <ol class="arabic simple">
-<li><p>Starting from the NetML Malware pcapML file,</p></li>
-<li><p>Extracting flows and labels,</p></li>
-<li><p>Generating hashed features with nPrint,</p></li>
-<li><p>Applying PCA-based dimensionality reduction,</p></li>
+<li><p>Starting from the NetML Malware pcapML file</p></li>
+<li><p>Extracting flows and labels</p></li>
+<li><p>Generating hashed features with nPrint</p></li>
+<li><p>Applying PCA-based dimensionality reduction</p></li>
 <li><p>Training and evaluating several classical ML models.</p></li>
 </ol>
 <p>Several key points emerged:</p>
-<ul class="simple">
-<li><p><strong>Feature configuration matters a lot.</strong><br />
+<ol class="arabic simple">
+<li><p><strong>Feature extraction configuration matters</strong><br />
 Even when using the same dataset and similar modeling techniques, small changes in nPrint / nPrintML configuration (headers, payload length, hash
-size, etc.) can dramatically alter performance. The relatively modest balanced accuracies I obtained are consistent with the idea that my
-configuration does not match the official NetML feature pipeline.</p></li>
+size, etc.) can alter performance. This might be a possible source of inconsistency with my derived balanced accuracies for hard dataset.</p></li>
 <li><p><strong>Dimensionality reduction is essential for practicality.</strong><br />
-The original feature matrices are large and dense. PCA reduced them from ~1000 dimensions to just 15, making it feasible to train multiple models
+The original feature matrices are large and dense. PCA reduced them from 1000 dimensions to just 15, making it feasible to train multiple models
 quickly on a laptop. IncrementalPCA and chunked IO were crucial to fit the transforms without exhausting memory.</p></li>
-<li><p><strong>Model choice interacts with preprocessing.</strong><br />
-Linear models (Logistic Regression, SGD) benefited from PCA and standardized inputs. Tree-based models (Random Forest, Gradient Boosting, XGBoost) handled
-the PCA-transformed data well and generally achieved better accuracy and balanced accuracy than linear models.</p></li>
 <li><p><strong>Easy vs. hard labels.</strong><br />
 The easy binary task (malware vs benign) is simpler and generally yields higher accuracy than the hard malware-family task. The hard task suffers from
-class imbalance and substantial overlap between families, resulting in much lower macro-F1 scores.</p></li>
-</ul>
+class imbalance and possible overlap between families, hence the lower balanced accuracies.</p></li>
+</ol>
 </section>
 <section id="future-work">
 <h2>7.2 Future work<a class="headerlink" href="#future-work" title="Link to this heading">¶</a></h2>
 <p>For a future version of this project, the most important next steps would be:</p>
 <ol class="arabic simple">
-<li><p>Match the nPrintML feature configuration (n-gram size, hash length, headers, payload length, and padding rules) to the official settings.</p></li>
-<li><p>Incorporate other AutoML tools to search a larger model space with cross-validation.</p></li>
+<li><p>Match the nPrintML feature configuration to the official settings.</p></li>
+<li><p>Incorporate tools to search a larger model space with cross-validation.</p></li>
 <li><p>Explore sequence-based models (e.g., CNNs or Transformers over packet byte sequences) as an alternative to static hashed feature vectors.</p></li>
 <li><p>Explore hyper-parameter settings of the models used.</p></li>
 </ol>
