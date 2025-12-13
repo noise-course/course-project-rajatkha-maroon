@@ -6,7 +6,7 @@ This project explored an end-to-end malware traffic classification pipeline:
 
 1. Starting from the NetML Malware pcapML file
 2. Extracting flows and labels
-3. Generating hashed features with nPrint
+3. Generating features with nPrint
 4. Applying PCA-based dimensionality reduction
 5. Training and evaluating several classical ML models.
 
