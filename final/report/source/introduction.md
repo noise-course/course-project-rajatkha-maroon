@@ -4,7 +4,7 @@ Modern communication networks continuously generate massive volumes of packet-le
 
 Traditional methods for traffic classification, such as port-based rules or deep packet inspection (DPI), are increasingly ineffective due to encryption, protocol evolution, and deliberate obfuscation. As a result, recent work has moved toward machine-learning–based traffic classification, often using either raw packet bytes or derived statistical features.
 
-In this project, I study malware-versus-benign traffic classification using the NetML Malware dataset and the **nPrintML** framework. nPrintML converts packet captures (pcaps) into fixed-length, hashed feature vectors, which makes it possible to train standard machine learning models on
+In this project, I study malware-versus-benign traffic classification using the NetML Malware dataset and the **nPrintML** framework. nPrintML converts packet captures (pcaps) into fixed-length, feature vectors, which makes it possible to train standard machine learning models on
 network flows without writing protocol-specific parsers.
 
 I focus on two related tasks:
