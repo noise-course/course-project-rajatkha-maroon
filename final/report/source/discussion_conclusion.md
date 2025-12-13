@@ -13,7 +13,7 @@ This project explored an end-to-end malware traffic classification pipeline:
 Several key points emerged:
 
 1. **Feature extraction configuration matters**  
-  Even when using the same dataset and similar modeling techniques, small changes in nPrint / nPrintML configuration (headers, payload length, hash
+  Even when using the same dataset and similar modeling techniques, small changes in nPrint / nPrintML configuration (headers, payload length,
   size, etc.) can alter performance. This might be a possible source of inconsistency with my derived balanced accuracies for hard dataset.
 2. **Dimensionality reduction is essential for practicality.**  
   The original feature matrices are large and dense. PCA reduced them from 1000 dimensions to just 15, making it feasible to train multiple models
@@ -28,5 +28,5 @@ For a future version of this project, the most important next steps would be:
 
 1. Match the nPrintML feature configuration to the official settings.
 2. Incorporate tools to search a larger model space with cross-validation.
-3. Explore sequence-based models (e.g., CNNs or Transformers over packet byte sequences) as an alternative to static hashed feature vectors.
+3. Explore sequence-based models (e.g., CNNs or Transformers over packet byte sequences) as an alternative.
 4. Explore hyper-parameter settings of the models used. 
