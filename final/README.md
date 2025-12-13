@@ -3,7 +3,7 @@ This project constructs a reproducible preprocessing and modeling pipeline using
 and cleanup, along with an incremental dimensionality reduction to manage a huge dataset, and eventually analyzing multiple ML models to fit both **easy** and **hard**
 classes in the dataset.
 
-In addition, the project reproduces the results from ```pcapML``` benchmarks (link: https://nprint.github.io/benchmarks/malware_detection/netml_malware.html).
+In addition, the project aims to reproduce the results (and improvize) using netML Autogluon on the above pipeline from ```pcapML``` benchmarks (link: https://nprint.github.io/benchmarks/malware_detection/netml_malware.html).
 
 # Data
 The project uses many data files (originally provided and intermediately generated). The directory structure is as follows:
